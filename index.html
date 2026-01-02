@@ -111,7 +111,7 @@
       const days = Math.floor(totalSeconds / 86400);
 
       const pad = n => String(n).padStart(2, "0");
-      return `${days} days ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+      return `${days}:${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
     }
 
     function renderCountdown(dateString) {
