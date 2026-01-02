@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Countdown</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      background: var(--bg-color, white);
+      color: var(--text-color, black);
+    }
+
+    #app {
+      height: 100%;
+    }
+
+    .center {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #countdown {
+      font-size: 3.5rem;
+      text-align: center;
+    }
+
+    /* Gear icon */
+    #gear {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* Settings panel */
+    #settings {
+      position: fixed;
+      top: 40px;
+      right: 12px;
+      background: white;
+      color: black;
+      border: 1px solid black;
+      padding: 10px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    #settings label {
+      display: block;
+      margin-top: 6px;
+    }
+
+    input[type="color"],
+    input[type="date"] {
+      margin-top: 4px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="gear">⚙︎</div>
+  <div id="settings">
+    <label>
+      Text color
+      <input type="color" id="textColor">
+    </label>
+    <label>
+      Background color
+      <input type="color" id="bgColor">
+    </label>
+    <label>
+      End date
+      <input type="date" id="endDate">
+    </label>
+  </div>
+
+  <div id="app"></div>
+
+  <script>
+    const STORAGE_DATE = "countdownTargetDate";
+    const STORAGE_TEXT = "countdownTextColor";
+    const STORAGE_BG = "countdownBgColor";
+
+    const app = document.getElementById("app");
+    const gear = document.getElementById("gear");
+    const settings = document.getElementById("settings");
+
+    const textColorInput = document.getElementById("textColor");
+    const bgColorInput = document.getElementById("bgColor");
+    const endDateInput = document.getElementById("endDate");
+
+    function formatRemaining(targetDate) {
+      const now = new Date();
+      const diff = targetDate - now;
+
+      if (diff <= 0) return "0 days 00:00:00";
+
+      const totalSeconds = Math.floor(diff / 1000);
+      const seconds = totalSeconds % 60;
+      const minutes = Math.floor(totalSeconds / 60) % 60;
+      const hours = Math.floor(totalSeconds / 3600) % 24;
+      const days = Math.floor(totalSeconds / 86400);
+
+      const pad = n => String(n).padStart(2, "0");
+      return `${days} days ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    }
+
+    function renderCountdown(dateString) {
+      app.innerHTML = "";
+      const container = document.createElement("div");
+      container.className = "center";
+
+      const countdown = document.createElement("div");
+      countdown.id = "countdown";
+
+      const targetDate = new Date(dateString + "T00:00:00");
+
+      function update() {
+        countdown.textContent = formatRemaining(targetDate);
+      }
+
+      update();
+      setInterval(update, 1000);
+
+      container.appendChild(countdown);
+      app.appendChild(container);
+    }
+
+    function applyColors() {
+      const textColor = localStorage.getItem(STORAGE_TEXT) || "#000000";
+      const bgColor = localStorage.getItem(STORAGE_BG) || "#ffffff";
+
+      document.body.style.setProperty("--text-color", textColor);
+      document.body.style.setProperty("--bg-color", bgColor);
+
+      textColorInput.value = textColor;
+      bgColorInput.value = bgColor;
+    }
+
+    /* Settings interactions */
+    gear.addEventListener("click", () => {
+      settings.style.display =
+        settings.style.display === "none" ? "block" : "none";
+    });
+
+    textColorInput.addEventListener("input", e => {
+      localStorage.setItem(STORAGE_TEXT, e.target.value);
+      applyColors();
+    });
+
+    bgColorInput.addEventListener("input", e => {
+      localStorage.setItem(STORAGE_BG, e.target.value);
+      applyColors();
+    });
+
+    endDateInput.addEventListener("change", e => {
+      localStorage.setItem(STORAGE_DATE, e.target.value);
+      renderCountdown(e.target.value);
+    });
+
+    /* Initial load */
+    const savedDate = localStorage.getItem(STORAGE_DATE);
+    if (savedDate) {
+      endDateInput.value = savedDate;
+      renderCountdown(savedDate);
+    }
+
+    applyColors();
+  </script>
+</body>
+</html>
