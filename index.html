@@ -86,6 +86,8 @@
   <div id="app"></div>
 
   <script>
+    const DEFAULT_DATE = "2029-01-01";
+
     const STORAGE_DATE = "countdownTargetDate";
     const STORAGE_TEXT = "countdownTextColor";
     const STORAGE_BG = "countdownBgColor";
@@ -102,7 +104,7 @@
       const now = new Date();
       const diff = targetDate - now;
 
-      if (diff <= 0) return "0 days 00:00:00";
+      if (diff <= 0) return "0 00:00:00";
 
       const totalSeconds = Math.floor(diff / 1000);
       const seconds = totalSeconds % 60;
@@ -168,12 +170,9 @@
     });
 
     /* Initial load */
-    const savedDate = localStorage.getItem(STORAGE_DATE);
-    if (savedDate) {
-      endDateInput.value = savedDate;
-      renderCountdown(savedDate);
-    }
-
+    const savedDate = localStorage.getItem(STORAGE_DATE) || DEFAULT_DATE;
+    endDateInput.value = savedDate;
+    renderCountdown(savedDate);
     applyColors();
   </script>
 </body>
